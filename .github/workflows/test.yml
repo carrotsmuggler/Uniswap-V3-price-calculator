@@ -1,45 +1,54 @@
 name: CI
 
 on:
-  push:
-  pull_request:
-  workflow_dispatch:
+    push:
+    pull_request:
+    workflow_dispatch:
 
 env:
-  FOUNDRY_PROFILE: ci
+    FOUNDRY_PROFILE: ci
 
 jobs:
-  check:
-    strategy:
-      fail-fast: true
+    check:
+        strategy:
+            fail-fast: true
 
-    name: Foundry project
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        name: Foundry project
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
+            - name: Set up Node.js
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 12.x
 
-      - name: Show Forge version
-        run: |
-          forge --version
+            - name: Install yarn dependencies
+              run: yarn install --frozen-lockfile
+              working-directory: lib/v3-periphery
 
-      - name: Run Forge fmt
-        run: |
-          forge fmt --check
-        id: fmt
+            - name: Install Foundry
+              uses: foundry-rs/foundry-toolchain@v1
+              with:
+                  version: nightly
 
-      - name: Run Forge build
-        run: |
-          forge build --sizes
-        id: build
+            - name: Show Forge version
+              run: |
+                  forge --version
 
-      - name: Run Forge tests
-        run: |
-          forge test -vvv
-        id: test
+            - name: Run Forge fmt
+              run: |
+                  forge fmt --check
+              id: fmt
+
+            - name: Run Forge build
+              run: |
+                  forge build --sizes
+              id: build
+
+            - name: Run Forge tests
+              run: |
+                  forge test -vvv
+              id: test

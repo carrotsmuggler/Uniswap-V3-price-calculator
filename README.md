@@ -6,6 +6,10 @@ A simple foundry repo to find the price of an Uniswap V3 pool. The price is calc
 
 Also a good repo to clone if you need all the uniswap interfaces for solidity 0.8.0 and up.
 
+## Installation
+
+Go to the `lib/v3-periphery` folder and run `yarn` to fix dependencies.
+
 ## Example usage
 
 Add a rpc url in a `.env` file following the `.env.example` file. If no rpc url is present, the code will use a public rpcurl by default.
