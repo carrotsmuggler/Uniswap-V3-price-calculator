@@ -29,6 +29,9 @@ jobs:
               run: yarn install --frozen-lockfile
               working-directory: lib/v3-periphery
 
+            - name: Create .env file
+              run: echo "RPC_URL=${{ secrets.RPC_URL }}" > .env
+
             - name: Install Foundry
               uses: foundry-rs/foundry-toolchain@v1
               with:
