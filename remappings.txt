@@ -1,0 +1,8 @@
+@ensdomains/=lib/v3-periphery/node_modules/@ensdomains/
+@openzeppelin/=lib/v3-periphery/node_modules/@openzeppelin/
+@uniswap/=lib/v3-periphery/node_modules/@uniswap/
+base64-sol/=lib/v3-periphery/node_modules/base64-sol/
+forge-std/=lib/forge-std/src/
+hardhat/=lib/v3-periphery/node_modules/hardhat/
+v3-core/=lib/v3-core/contracts/
+v3-periphery/=lib/v3-periphery/contracts/
