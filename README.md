@@ -4,6 +4,8 @@
 
 A simple foundry repo to find the price of an Uniswap V3 pool. The price is calculated in either 18 or 6 decimals. The output logged is in floating point format. Default case is for arbitrum chain.
 
+Also a good repo to clone if you need all the uniswap interfaces for solidity 0.8.0 and up.
+
 ## Example usage
 
 Add an rpc url in a `.env` file following the `.env.example` file. If no rpc url is present, the code will use a public rpcurl by default.
