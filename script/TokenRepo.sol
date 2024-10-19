@@ -33,7 +33,7 @@ contract TokenRepo is Script {
 
         (bool success, bytes memory data) = token.staticcall(abi.encodeWithSignature("name()"));
         if (success) {
-            name = string(data);
+            name = vm.trim(string(data));
         }
 
         if (bytes(name).length > 0) return name;

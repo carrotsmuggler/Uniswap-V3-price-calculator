@@ -20,10 +20,10 @@ contract PriceChecker {
         uint256 sqrtPrice = uint256(sqrtPriceX96) * 1e9 >> 96;
         uint256 price = sqrtPrice * sqrtPrice * (10 ** decimal0) / (10 ** decimal1);
         // 18 decimal price
-        // return (price, priceDecimals, token0, token1);
+        return (price, priceDecimals, token0, token1);
 
         // 6 decimal price
-        priceDecimals = 6;
-        return (price / 10 ** 12, priceDecimals, token0, token1);
+        // priceDecimals = 6;
+        // return (price / 10 ** 12, priceDecimals, token0, token1);
     }
 }
