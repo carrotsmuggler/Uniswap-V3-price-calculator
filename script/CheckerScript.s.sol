@@ -1,21 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Script, console} from "forge-std/Script.sol";
 
 import "v3-core/interfaces/IUniswapV3Pool.sol";
 import "v3-periphery/interfaces/INonfungiblePositionManager.sol";
 import "v3-core/interfaces/IUniswapV3Factory.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./TokenRepo.sol";
+import "./ScriptStorage.sol";
+import "../src/PriceChecker.sol";
 
-contract Checker is Test, TokenRepo {
-    INonfungiblePositionManager posManager = INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-    IUniswapV3Factory factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-
-    uint256 chainId;
-
-    function setUp() public {
+contract CheckerScript is Script, TokenRepo, PriceChecker, ScriptStorage {
+    function run() public {
         string memory RPC_URL = vm.envString("RPC_URL");
         if (bytes(RPC_URL).length == 0) {
             // Backup public rpc url for arbitrum
@@ -25,39 +22,31 @@ contract Checker is Test, TokenRepo {
 
         populateTokenRepo();
         chainId = block.chainid;
-    }
 
-    function testPrice() public view {
-        // USDC-USDT
         printPriceInfo(0xbE3aD6a5669Dc0B8b12FeBC03608860C31E2eef6);
-
-        // WETH-USDC
-        printPriceInfo(0xC6962004f452bE9203591991D15f6b388e09E8D0);
-
-        // WBTC-USDT
-        printPriceInfo(0x5969EFddE3cF5C0D9a88aE51E47d721096A97203);
-
-        // DAI-USDC
-        printPriceInfo(0x7CF803e8d82A50504180f417B8bC7a493C0a0503);
     }
 
-    function getPrice(address pool) public view returns (uint256, uint256, address, address) {
-        (uint160 sqrtPriceX96,,,,,,) = IUniswapV3Pool(pool).slot0();
+    function getPoolInfo(address pool) public {
+        string memory RPC_URL = vm.envString("RPC_URL");
+        if (bytes(RPC_URL).length == 0) {
+            // Backup public rpc url for arbitrum
+            RPC_URL = "https://1rpc.io/arb";
+        }
+        vm.createSelectFork(RPC_URL);
 
-        address token0 = IUniswapV3Pool(pool).token0();
-        address token1 = IUniswapV3Pool(pool).token1();
-        uint256 decimal0 = ERC20(token0).decimals();
-        uint256 decimal1 = ERC20(token1).decimals();
-        uint256 priceDecimals = 18;
+        populateTokenRepo();
+        chainId = block.chainid;
 
-        uint256 sqrtPrice = uint256(sqrtPriceX96) * 1e9 >> 96;
-        uint256 price = sqrtPrice * sqrtPrice * (10 ** decimal0) / (10 ** decimal1);
-        // 18 decimal price
-        // return (price, priceDecimals, token0, token1);
+        printPriceInfo(pool);
+    }
 
-        // 6 decimal price
-        priceDecimals = 6;
-        return (price / 10 ** 12, priceDecimals, token0, token1);
+    function getPoolInfoWithRPC(address pool, string memory RPC_URL) public {
+        vm.createSelectFork(RPC_URL);
+
+        populateTokenRepo();
+        chainId = block.chainid;
+
+        printPriceInfo(pool);
     }
 
     function toFloat(uint256 value, uint256 decimals) public pure returns (string memory) {
@@ -78,6 +67,12 @@ contract Checker is Test, TokenRepo {
         (uint256 price, uint256 priceDecimals, address token0, address token1) = getPrice(pool);
         string memory name0 = getName(token0, chainId);
         string memory name1 = getName(token1, chainId);
+        uint256 invertedPrice = _invertPrice(price, priceDecimals);
         console.log("%s per %s price: %s", name1, name0, toFloat(price, priceDecimals));
+        console.log("%s per %s price: %s", name0, name1, toFloat(invertedPrice, priceDecimals));
+    }
+
+    function _invertPrice(uint256 price, uint256 decimals) internal pure returns (uint256) {
+        return 10 ** (decimals * 2) / price;
     }
 }
